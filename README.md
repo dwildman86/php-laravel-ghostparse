@@ -39,6 +39,25 @@ nothing is lost. Make them idempotent (the `firstOrCreate` on `message_id` above
 (`implements ShouldQueue`). Signature failures get a 400 and dispatch nothing. `WebhookTestReceived` is dispatched
 for the dashboard's "Send test event".
 
+## Send email
+
+```php
+use Wildye\EmailParser\Email;
+use Wildye\EmailParser\Laravel\Facades\EmailParser;
+
+$sent = EmailParser::send(
+    Email::create()
+        ->from('derek@1stkirkby.example')
+        ->fromName('Derek Wildman')   // "Derek Wildman <derek@1stkirkby.example>"
+        ->to('parent@example.com')
+        ->subject('Camp kit list')
+        ->text('Hi, the kit list is attached.')
+);
+$sent->fromName; // "Derek Wildman"
+```
+
+The From name comes from `fromName()`, a name in `from`, or the address's saved From name (set in the dashboard), in that order. The response's `from` shows the one used. Sending is only available on installations that enable it.
+
 ## Call the API
 
 ```php

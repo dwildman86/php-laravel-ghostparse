@@ -10,13 +10,12 @@
         "illuminate/support": "^10.0|^11.0|^12.0",
         "illuminate/http": "^10.0|^11.0|^12.0",
         "illuminate/routing": "^10.0|^11.0|^12.0",
-        "wildye/email-parser": "^1.0"
+        "wildye/email-parser": "^1.2"
     },
     "require-dev": {
         "orchestra/testbench": "^8.0|^9.0|^10.0",
         "phpunit/phpunit": "^10.5|^11.0"
     },
-    "repositories": [{ "type": "path", "url": "../php", "options": { "versions": { "wildye/email-parser": "1.1.0" } } }],
     "autoload": { "psr-4": { "Wildye\\EmailParser\\Laravel\\": "src/" } },
     "autoload-dev": { "psr-4": { "Wildye\\EmailParser\\Laravel\\Tests\\": "tests/" } },
     "extra": {
