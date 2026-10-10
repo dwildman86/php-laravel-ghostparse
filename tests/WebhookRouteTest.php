@@ -16,7 +16,11 @@ use Wildye\EmailParser\Webhook;
 
 final class WebhookRouteTest extends TestCase
 {
-    private const FIXTURES = __DIR__ . '/../../fixtures';
+    /** The shared fixtures: bundled in tests/fixtures in the package's own repository, in sdk/fixtures in the monorepo. */
+    private static function fixtures(): string
+    {
+        return is_dir(__DIR__ . '/fixtures') ? __DIR__ . '/fixtures' : __DIR__ . '/../../fixtures';
+    }
 
     protected function getPackageProviders($app): array
     {
@@ -25,7 +29,7 @@ final class WebhookRouteTest extends TestCase
 
     protected function defineEnvironment($app): void
     {
-        $secrets = json_decode((string) file_get_contents(self::FIXTURES . '/secrets.json'), true);
+        $secrets = json_decode((string) file_get_contents(self::fixtures() . '/secrets.json'), true);
         $app['config']->set('email-parser.webhook_secret', $secrets['secret']);
         $app['config']->set('email-parser.api_key', 'ek_live_test');
         // The fixture was signed at a fixed time.
@@ -34,7 +38,7 @@ final class WebhookRouteTest extends TestCase
 
     private static function headers(): array
     {
-        $h = json_decode((string) file_get_contents(self::FIXTURES . '/email.received.headers.json'), true);
+        $h = json_decode((string) file_get_contents(self::fixtures() . '/email.received.headers.json'), true);
 
         return array_combine(array_map(static fn ($k) => 'HTTP_' . strtoupper(str_replace('-', '_', $k)), array_keys($h)), $h);
     }
@@ -42,7 +46,7 @@ final class WebhookRouteTest extends TestCase
     public function testDispatchesAVerifiedInboundEmail(): void
     {
         Event::fake();
-        $body = (string) file_get_contents(self::FIXTURES . '/email.received.json');
+        $body = (string) file_get_contents(self::fixtures() . '/email.received.json');
         $this->call('POST', '/email-parser/webhook', [], [], [], self::headers() + ['CONTENT_TYPE' => 'application/json'], $body)->assertOk();
 
         Event::assertDispatched(InboundEmailReceived::class, function (InboundEmailReceived $e) {
@@ -55,7 +59,7 @@ final class WebhookRouteTest extends TestCase
     public function testRejectsABadSignature(): void
     {
         Event::fake();
-        $body = str_replace('Order #1042', 'Order #9999', (string) file_get_contents(self::FIXTURES . '/email.received.json'));
+        $body = str_replace('Order #1042', 'Order #9999', (string) file_get_contents(self::fixtures() . '/email.received.json'));
         $this->call('POST', '/email-parser/webhook', [], [], [], self::headers() + ['CONTENT_TYPE' => 'application/json'], $body)->assertStatus(400);
         Event::assertNotDispatched(InboundEmailReceived::class);
     }
