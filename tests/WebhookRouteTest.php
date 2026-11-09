@@ -13,6 +13,8 @@ use Wildye\EmailParser\Laravel\Events\WebhookTestReceived;
 use Wildye\EmailParser\Laravel\Facades\EmailParser;
 use Wildye\EmailParser\Thread;
 use Wildye\EmailParser\Webhook;
+use Wildye\EmailParser\WebmailDataRequests;
+use Wildye\EmailParser\Laravel\Facades\WebmailDataRequests as WebmailDataRequestsFacade;
 
 final class WebhookRouteTest extends TestCase
 {
@@ -79,5 +81,18 @@ final class WebhookRouteTest extends TestCase
     {
         self::assertInstanceOf(Client::class, $this->app->make(Client::class));
         self::assertSame($this->app->make(Client::class), EmailParser::getFacadeRoot());
+    }
+
+    public function testWebmailDataRequestsFacade(): void
+    {
+        config(['email-parser.webmail.url' => 'https://example.com/mail', 'email-parser.webmail.data_request_key' => 'wmk_test']);
+        $dsar = $this->app->make(WebmailDataRequests::class);
+        self::assertSame($dsar, WebmailDataRequestsFacade::getFacadeRoot());
+    }
+
+    public function testWebmailDataRequestsNeedsItsSettings(): void
+    {
+        $this->expectExceptionMessage('WEBMAIL_URL and WEBMAIL_DATA_REQUEST_KEY');
+        $this->app->make(WebmailDataRequests::class);
     }
 }

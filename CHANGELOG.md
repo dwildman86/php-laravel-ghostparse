@@ -2,6 +2,12 @@
 
 All notable changes to `wildye/email-parser-laravel`. Versions follow [semantic versioning](https://semver.org).
 
+## 1.2.0
+
+- The `WebmailDataRequests` facade: data requests (GDPR) on your GhostParse webmail, with `WEBMAIL_URL` and
+  `WEBMAIL_DATA_REQUEST_KEY` (and `WEBMAIL_KEY_HEADER=x-api-key` for hosting that drops the Authorization header).
+- Requires `wildye/email-parser` ^1.4.
+
 ## 1.1.0
 
 - Requires `wildye/email-parser` ^1.2, for `Email::fromName()` and `Email::signature()` when sending through the

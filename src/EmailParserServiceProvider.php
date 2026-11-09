@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Wildye\EmailParser\Client;
 use Wildye\EmailParser\Laravel\Http\WebhookController;
+use Wildye\EmailParser\WebmailDataRequests;
 
 /**
  * Registers the GhostParse client (resolve Client::class, or use the EmailParser facade) and a webhook route that
@@ -19,6 +20,9 @@ use Wildye\EmailParser\Laravel\Http\WebhookController;
  *     Event::listen(InboundEmailReceived::class, function (InboundEmailReceived $e) {
  *         Ticket::firstOrCreate(['thread_id' => $e->email->threadId])->addReply($e->email->replyText);
  *     });
+ *
+ * And, with WEBMAIL_URL and WEBMAIL_DATA_REQUEST_KEY set, data requests (GDPR) on your webmail through the
+ * WebmailDataRequests facade.
  */
 final class EmailParserServiceProvider extends ServiceProvider
 {
@@ -35,6 +39,17 @@ final class EmailParserServiceProvider extends ServiceProvider
             return new Client($config['api_key'], ['base_url' => $config['base_url']]);
         });
         $this->app->alias(Client::class, 'email-parser');
+
+        // Data requests (GDPR) on your webmail: resolve WebmailDataRequests::class, or use the WebmailDataRequests facade.
+        $this->app->singleton(WebmailDataRequests::class, function ($app) {
+            $config = $app['config']['email-parser.webmail'] ?? [];
+            if (empty($config['url']) || empty($config['data_request_key'])) {
+                throw new \RuntimeException('Set WEBMAIL_URL and WEBMAIL_DATA_REQUEST_KEY to use data requests on your webmail');
+            }
+
+            return new WebmailDataRequests($config['url'], $config['data_request_key'], ['key_header' => $config['key_header'] ?? 'authorization']);
+        });
+        $this->app->alias(WebmailDataRequests::class, 'email-parser.webmail-data-requests');
     }
 
     public function boot(): void

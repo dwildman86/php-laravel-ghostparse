@@ -16,4 +16,13 @@ return [
 
     // Seconds a signature stays valid (replay protection).
     'tolerance' => 300,
+
+    // Data requests (GDPR) on your GhostParse webmail (1.12.0 or later): where it is (https://example.com/mail) and an
+    // API key made in the webmail under Settings → Data requests → From another system (wmk_…). Needed only for the
+    // WebmailDataRequests facade. key_header 'x-api-key' is for hosting that drops the Authorization header.
+    'webmail' => [
+        'url' => env('WEBMAIL_URL'),
+        'data_request_key' => env('WEBMAIL_DATA_REQUEST_KEY'),
+        'key_header' => env('WEBMAIL_KEY_HEADER', 'authorization'),
+    ],
 ];
